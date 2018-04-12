@@ -8,6 +8,12 @@ public abstract class BodyPoser : MonoBehaviour {
 	protected string model;
 
 	[SerializeField]
+	protected string outputLayer;
+
+	[SerializeField]
+	protected string inputLayer;
+
+	[SerializeField]
 	protected float scalingFactor;
 
 	[SerializeField]
@@ -25,6 +31,7 @@ public abstract class BodyPoser : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Debug.Log (Resources.Load (model));
 		TextAsset graphModel = Resources.Load (model) as TextAsset;
 		graph = new TFGraph ();
 		graph.Import (graphModel.bytes);
