@@ -22,9 +22,16 @@ public class BodyRotationPoser : BodyPoser{
 		float y = output_tensor [0, 1];
 		float z = output_tensor [0, 2];
 		float w = Mathf.Sqrt(1 - x * x - y * y - z * z);
-		bodyTransform.rotation = new Quaternion(x, y, z, w);
+		bodyTransform.rotation = rightToLeftHand (x, y, z, w);
 		// position the body such that the base of the neck is right under the head
 		bodyTransform.position = bodyTransform.position + head.position - neck.position + positionOffset;
 		Debug.Log (output_tensor [0,0] + " " + output_tensor [0,1] + " " +output_tensor [0,2] + " " +output_tensor [0,3] + " " +output_tensor [0,4] + " " +output_tensor [0,5] + " " +output_tensor [0,6]);
+	}
+
+	public Quaternion rightToLeftHand(float x, float y, float z, float w) {
+		Quaternion newRotation = new Quaternion (x, y, z, w);
+		Vector3 rotation = newRotation.eulerAngles;
+		newRotation.eulerAngles = new Vector3 (rotation.x, -rotation.y, rotation.z);
+		return newRotation;
 	}
 }
