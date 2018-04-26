@@ -1,14 +1,19 @@
 ﻿using UnityEngine;
+using System;
 
 public class Math3D {
 	public static TransformInfo PivotY(Transform transform, Vector3 pivotPoint, float angle) {
-		float angleRad = Mathf.Deg2Rad * angle;
-		float s = Mathf.Sin (angleRad);
-		float c = Mathf.Cos (angleRad);
+		double angleRad = Math.PI * angle / 180f;
+		double s = Math.Sin (angleRad);
+		double c = Math.Cos (angleRad);
 		float x = transform.position.x - pivotPoint.x;
 		float z = transform.position.z - pivotPoint.z;
-		Vector3 newPosition = new Vector3(x*c - z*s, transform.position.y, x*s + z*c);
-		Quaternion newQuaternion = Quaternion.Euler(new Vector3(transform.eulerAngles.x, transform.eulerAngles.y + angle, transform.eulerAngles.z));
+
+		float newX = (float)((x * c) - (z * s));
+		float newZ = (float)((x * s) + (z * c));
+
+		Vector3 newPosition = new Vector3(newX, transform.position.y, newZ);
+		Quaternion newQuaternion = Quaternion.Euler(new Vector3(transform.eulerAngles.x, transform.eulerAngles.y - angle, transform.eulerAngles.z));
 		return new TransformInfo (newPosition, newQuaternion);
 	}
 

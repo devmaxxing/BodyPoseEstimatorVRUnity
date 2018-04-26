@@ -29,16 +29,15 @@ public abstract class BodyPoser : MonoBehaviour {
 	protected TFGraph graph;
 	protected TFSession session;
 
-	// Use this for initialization
 	void Start () {
-		Debug.Log (Resources.Load (model));
-		TextAsset graphModel = Resources.Load (model) as TextAsset;
-		graph = new TFGraph ();
-		graph.Import (graphModel.bytes);
-		session = new TFSession (graph);
+		if (model != null) {
+			TextAsset graphModel = Resources.Load (model) as TextAsset;
+			graph = new TFGraph ();
+			graph.Import (graphModel.bytes);
+			session = new TFSession (graph);
+		}
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		AdjustPose ();
 	}
