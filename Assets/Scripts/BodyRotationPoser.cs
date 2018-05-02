@@ -35,39 +35,42 @@ public class BodyRotationPoser : BodyPoser{
 		TransformInfo pivotedHandLeft = Math3D.PivotY(hand_left, rotationPoint, rotationAmount);
 		TransformInfo pivotedHandRight = Math3D.PivotY(hand_right, rotationPoint, rotationAmount);
 
-		//pivoted_head.position = pivotedHead.position;
-		//pivoted_head.rotation = pivotedHead.rotation;
+        //pivoted_head.position = pivotedHead.position;
+        //pivoted_head.rotation = pivotedHead.rotation;
 
-		//pivoted_left.position = pivotedHandLeft.position;
-		//pivoted_left.rotation = pivotedHandLeft.rotation;
+        //pivoted_left.position = pivotedHandLeft.position;
+        //pivoted_left.rotation = pivotedHandLeft.rotation;
 
-		//pivoted_right.position = pivotedHandRight.position;
-		//pivoted_right.rotation = pivotedHandRight.rotation;
+        //pivoted_right.position = pivotedHandRight.position;
+        //pivoted_right.rotation = pivotedHandRight.rotation;
 
-		//Convert rotations to right hand coordinate system
-		Quaternion convertedHeadRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
-		Quaternion convertedLeftHandRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
-		Quaternion convertedRightHandRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
+        //Convert rotations to right hand coordinate system
+        //Quaternion convertedHeadRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
+        //Quaternion convertedLeftHandRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
+        //Quaternion convertedRightHandRotation = Math3D.RightToLeftHand (pivotedHead.rotation.x, pivotedHead.rotation.y, pivotedHead.rotation.z, pivotedHead.rotation.w);
+        Quaternion pivotedHeadRotation = pivotedHead.rotation;
+        Quaternion pivotedLeftHandRotation = pivotedHandLeft.rotation;
+        Quaternion pivotedRightHandRotation = pivotedHandRight.rotation;
 
-		float[,] inputs = new float[,] { { 
-				convertedHeadRotation.x,
-				convertedHeadRotation.y,
-				convertedHeadRotation.z,
-				convertedHeadRotation.w, 
+        float[,] inputs = new float[,] { { 
+				pivotedHeadRotation.x,
+				pivotedHeadRotation.y,
+				pivotedHeadRotation.z,
+				pivotedHeadRotation.w, 
 				0,
 				pivotedHead.position.y * scalingFactor,
 				0,
-				convertedLeftHandRotation.x,
-				convertedLeftHandRotation.y,
-				convertedLeftHandRotation.z,
-				convertedLeftHandRotation.w, 
+				pivotedLeftHandRotation.x,
+				pivotedLeftHandRotation.y,
+				pivotedLeftHandRotation.z,
+				pivotedLeftHandRotation.w, 
 				pivotedHandLeft.position.x * scalingFactor,
 				pivotedHandLeft.position.y * scalingFactor,
 				pivotedHandLeft.position.z * scalingFactor,
-				convertedRightHandRotation.x,
-				convertedRightHandRotation.y,
-				convertedRightHandRotation.z,
-				convertedRightHandRotation.w, 
+				pivotedRightHandRotation.x,
+				pivotedRightHandRotation.y,
+				pivotedRightHandRotation.z,
+				pivotedRightHandRotation.w, 
 				pivotedHandRight.position.x * scalingFactor,
 				pivotedHandRight.position.y * scalingFactor,
 				pivotedHandRight.position.z * scalingFactor
@@ -80,9 +83,19 @@ public class BodyRotationPoser : BodyPoser{
 		float x = output_tensor [0, 0];
 		float y = output_tensor [0, 1];
 		float z = output_tensor [0, 2];
-		float w = Mathf.Sqrt(Mathf.Abs(1 - x * x - y * y - z * z));
-		bodyTransform.rotation = Math3D.RightToLeftHand (x, y, z, w);
-		bodyTransform.Rotate (new Vector3 (0, headRotation));
+		float w = 1 - x * x - y * y - z * z;
+        
+        if (w < 0)
+        {
+            bodyTransform.position = head.position + positionOffset;
+            Quaternion newRotation = Quaternion.Euler(new Vector3(0, head.rotation.eulerAngles.y));
+            bodyTransform.rotation = newRotation;
+            return;
+        }
+        w = Mathf.Sqrt(w);
+
+        bodyTransform.rotation = Math3D.RightToLeftHand (x, y, z, w);
+        bodyTransform.Rotate (new Vector3 (0, headRotation));
 		// position the body such that the base of the neck is right under the head
 		bodyTransform.position = bodyTransform.position + head.position - neck.position + positionOffset;
 	}
